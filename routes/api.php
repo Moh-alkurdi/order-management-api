@@ -6,4 +6,6 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('v1')->group(function () {
     Route::post('/orders', [OrderController::class, 'store'])
          ->middleware(['idempotent', 'throttle:api']);
+
+    Route::post('/orders/{id}/support', [OrderController::class, 'handleSupportTicket']);
 });

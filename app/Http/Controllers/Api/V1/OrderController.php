@@ -4,16 +4,19 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Domains\Order\Actions\PlaceOrderAction;
+use App\Domains\Order\Actions\HandleCustomerSupportAction;
 use Illuminate\Http\Request;
 use Exception;
 
 class OrderController extends Controller
 {
     protected $placeOrderAction;
+    protected $handleSupportAction;
 
-    public function __construct(PlaceOrderAction $placeOrderAction)
+    public function __construct(PlaceOrderAction $placeOrderAction, HandleCustomerSupportAction $handleSupportAction)
     {
         $this->placeOrderAction = $placeOrderAction;
+        $this->handleSupportAction = $handleSupportAction;
     }
 
     public function store(Request $request)
@@ -47,5 +50,17 @@ class OrderController extends Controller
                 'message' => $e->getMessage()
             ], 422);
         }
+    }
+
+    public function handleSupportTicket(Request $request, $orderId)
+    {
+        $request->validate(['message' => 'required|string|min:10']);
+
+        $order = \App\Domains\Order\Models\Order::findOrFail($orderId);
+        
+        // تنفيذ الـ Action واستقبال النتيجة الجاهزة
+        $result = $this->handleSupportAction->execute($order, $request->input('message'));
+
+        return response()->json($result, 200);
     }
 }
