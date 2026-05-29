@@ -4,6 +4,7 @@ namespace App\Domains\Order\Actions;
 
 use App\Domains\Order\Models\Order;
 use App\Domains\Inventory\Actions\ReserveStockAction;
+use App\Domains\Order\Events\OrderPlaced;
 use App\Domains\Inventory\Models\Product;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -54,6 +55,9 @@ class PlaceOrderAction
             foreach ($reservedItems as $reservedItem) {
                 $order->items()->create($reservedItem);
             }
+
+            // 1. إطلاق الـ Domain Event ليعلم النظام بأكمله بنجاح العملية
+            event(new OrderPlaced($order));
 
             return $order;
         });
