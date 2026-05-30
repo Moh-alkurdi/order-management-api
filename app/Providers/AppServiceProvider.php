@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Event;
 use App\Domains\Order\Events\OrderPlaced;
 use App\Domains\Notification\Listeners\SendOrderNotifications;
+use App\Domains\Order\Models\Order;
+use App\Domains\Order\Observers\OrderObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -35,5 +37,7 @@ class AppServiceProvider extends ServiceProvider
             OrderPlaced::class,
             SendOrderNotifications::class
         );
+
+        Order::observe(OrderObserver::class);
     }
 }
