@@ -4,6 +4,7 @@ namespace App\Domains\Order\Observers;
 
 use App\Domains\Order\Models\Order;
 use App\Domains\AuditLog\Models\AuditLog;
+use Illuminate\Support\Facades\Cache;
 
 class OrderObserver
 {
@@ -22,7 +23,9 @@ class OrderObserver
   
     public function updated(Order $order): void
     {
-        // جلب البيانات التي تغيرت فقط واستبعاد الـ timestamp لتوفير المساحة
+        // 1. Clear the specific Redis Cache for this order instantly
+        Cache::forget("order_show_{$order->id}");
+         // جلب البيانات التي تغيرت فقط واستبعاد الـ timestamp لتوفير المساحة
         $dirty = $order->getDirty();
         $old = array_intersect_key($order->getOriginal(), $dirty);
 
