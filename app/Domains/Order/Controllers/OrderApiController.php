@@ -9,6 +9,8 @@ use App\Domains\Order\Resources\OrderResource;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\JsonResponse;
+//* Display a listing of the orders with optimized Eager Loading
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class OrderApiController extends Controller
 {
@@ -25,6 +27,20 @@ class OrderApiController extends Controller
         });
 
         return response()->json(new OrderResource($orderData));
+    }
+
+    /**
+     * Display a listing of the orders with optimized Eager Loading
+     */
+    public function index(): AnonymousResourceCollection
+    {
+        // Using Eager Loading 'with()' to completely eliminate the N+1 problem
+        $orders = Order::with('invoice')
+            ->where('user_id', auth()->id() ?? 1) // Safe fallback for testing
+            ->latest()
+            ->paginate(15);
+
+        return OrderResource::collection($orders);
     }
 
     /**

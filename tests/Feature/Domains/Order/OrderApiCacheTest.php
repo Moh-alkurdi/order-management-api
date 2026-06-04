@@ -23,7 +23,7 @@ class OrderApiCacheTest extends TestCase
         ]);
 
         // First Request: Triggers DB query and caches the result
-        $response = $this->getJson("/api/orders/{$order->id}");
+        $response = $this->getJson("/api/v1/orders/{$order->id}");
         $response->assertStatus(200);
 
         // Verification: Check if the key exists in Redis/Cache Store
